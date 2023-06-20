@@ -19,7 +19,7 @@ final case class Positioned[+T](
     )
   }
 
-  def eitherSequence[L, R](using ev: T <:< Either[L, R]): Either[L, Positioned[R]] =
+  def eitherSequence[L, R](implicit ev: T <:< Either[L, R]): Either[L, Positioned[R]] =
     ev(value) match {
       case Left(l)  => Left(l)
       case Right(r) => Right(copy(value = r))

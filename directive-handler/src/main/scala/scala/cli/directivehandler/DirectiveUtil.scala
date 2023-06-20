@@ -34,7 +34,7 @@ object DirectiveUtil {
         Positioned(pos, v.get)
     }
 
-  extension (deps: List[Positioned[String]]) {
+  implicit class PositionedDepsOps(private val deps: List[Positioned[String]]) extends AnyVal {
     def asDependencies: Either[DirectiveException, Seq[Positioned[AnyDependency]]] =
       deps
         .map {

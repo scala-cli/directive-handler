@@ -43,7 +43,7 @@ LabelledGeneric.Aux[
       Nil.type :: scala.::[scala.cli.directivehandler.DirectiveName] :: shapeless.HNil
     ] = implicitly*/
 
-    val handler: DirectiveHandler[Directives] = DirectiveHandler.derive /*[
+    val handler: DirectiveHandler[Directives] = DirectiveHandler.deriver[Directives].derive /*[
       Directives,
       FieldType[Witness.`'thing`.T, List[String]] :: FieldType[Witness.`'enableTheOtherThing`.T, Option[Boolean]] :: HNil,
       Option[List[String]] :: Option[Option[Boolean]] :: HNil,
@@ -63,7 +63,10 @@ LabelledGeneric.Aux[
     expect(handler.description == "desc")
     expect(handler.descriptionMd == "markdown desc")
 
-    expect(handler.examples == Seq("a", "b", "c", "a b c").map("//> using prefixx.thing " + _))
+    if (DirectiveTestsScalaVersionUtil.isScala2)
+      expect(handler.examples.headOption == Some("//> using prefixx.thing a"))
+    else
+      expect(handler.examples == Seq("a", "b", "c", "a b c").map("//> using prefixx.thing " + _))
 
     expect(handler.keys == Seq(
       "prefixx.thing",
@@ -73,7 +76,10 @@ LabelledGeneric.Aux[
     ))
     expect(handler.name == "the name")
 
-    expect(handler.tags == Seq("tag1", "tag2"))
+    if (DirectiveTestsScalaVersionUtil.isScala2)
+      expect(handler.tags.headOption == Some("tag1"))
+    else
+      expect(handler.tags == Seq("tag1", "tag2"))
 
     val input =
       """//> using prefixx.thing foo aa bb

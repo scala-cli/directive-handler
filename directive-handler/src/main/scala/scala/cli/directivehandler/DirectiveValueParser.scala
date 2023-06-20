@@ -51,7 +51,7 @@ object DirectiveValueParser {
       }
   }
 
-  given DirectiveValueParser[Unit] = { (values, scopePath, path) =>
+  implicit lazy val unit: DirectiveValueParser[Unit] = { (values, scopePath, path) =>
     values match {
       case Seq() => Right(())
       case Seq(value, _*) =>
@@ -60,7 +60,7 @@ object DirectiveValueParser {
     }
   }
 
-  extension (value: Value[_]) {
+  implicit class DirectiveValueParserValueOps(private val value: Value[_]) extends AnyVal {
 
     def isEmpty: Boolean =
       value match {
@@ -93,7 +93,7 @@ object DirectiveValueParser {
       DirectiveUtil.position(value, path, skipQuotes = isString)
   }
 
-  given DirectiveValueParser[Boolean] = { (values, scopePath, path) =>
+  implicit lazy val boolean: DirectiveValueParser[Boolean] = { (values, scopePath, path) =>
     values.filter(!_.isEmpty) match {
       case Seq() => Right(true)
       case Seq(v) =>
@@ -115,7 +115,7 @@ object DirectiveValueParser {
     }
   }
 
-  given DirectiveSingleValueParser[String] =
+  implicit lazy val string: DirectiveSingleValueParser[String] =
     (value, scopePath, path) =>
       value.asString.toRight {
         val pos = value.position(path)
@@ -127,7 +127,7 @@ object DirectiveValueParser {
 
   final case class MaybeNumericalString(value: String)
 
-  given DirectiveSingleValueParser[MaybeNumericalString] =
+  implicit lazy val maybeNumericalString: DirectiveSingleValueParser[MaybeNumericalString] =
     (value, scopePath, path) =>
       value.asString.map(MaybeNumericalString(_)).toRight {
         val pos = value.position(path)
@@ -144,21 +144,27 @@ object DirectiveValueParser {
       WithScopePath(ScopePath(Left("invalid"), os.sub), value)
   }
 
-  given [T](using underlying: DirectiveValueParser[T]): DirectiveValueParser[WithScopePath[T]] = {
+  implicit def withScopePath[T](implicit
+    underlying: DirectiveValueParser[T]
+  ): DirectiveValueParser[WithScopePath[T]] = {
     (values, scopePath, path) =>
       underlying.parse(values, scopePath, path)
         .map(WithScopePath(scopePath, _))
   }
-  given [T](using
+  implicit def positioned[T](implicit
     underlying: DirectiveSingleValueParser[T]
   ): DirectiveSingleValueParser[Positioned[T]] = {
     (value, scopePath, path) =>
       underlying.parseValue(value, scopePath, path)
         .map(Positioned(value.position(path), _))
   }
-  given [T](using underlying: DirectiveValueParser[T]): DirectiveValueParser[Option[T]] =
+  implicit def option[T](implicit
+    underlying: DirectiveValueParser[T]
+  ): DirectiveValueParser[Option[T]] =
     underlying.map(Some(_))
-  given [T](using underlying: DirectiveSingleValueParser[T]): DirectiveValueParser[List[T]] = {
+  implicit def list[T](implicit
+    underlying: DirectiveSingleValueParser[T]
+  ): DirectiveValueParser[List[T]] = {
     (values, scopePath, path) =>
       val res = values.filter(!_.isEmpty).map(underlying.parseValue(_, scopePath, path))
       val errors = res.collect {
