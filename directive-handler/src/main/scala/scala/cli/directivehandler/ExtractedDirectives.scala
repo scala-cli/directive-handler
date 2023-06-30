@@ -4,16 +4,14 @@ import com.virtuslab.using_directives.UsingDirectivesProcessor
 import com.virtuslab.using_directives.custom.model.UsingDirectives
 import com.virtuslab.using_directives.custom.utils.ast.{UsingDef, UsingDefs}
 
-import scala.annotation.targetName
 import scala.cli.directivehandler.UsingDirectivesOps._
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 case class ExtractedDirectives(
   directives: Seq[StrictDirective],
   positions: Option[Position.File]
 ) {
-  @targetName("append")
   def ++(other: ExtractedDirectives): ExtractedDirectives =
     ExtractedDirectives(directives ++ other.directives, positions)
 }

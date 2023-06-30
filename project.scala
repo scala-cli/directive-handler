@@ -1,5 +1,6 @@
-//> using scala "3.2.2"
+//> using scala "2.12.18", "2.13.11", "3.3.0"
 //> using jvm "8"
 //> using dep "com.lihaoyi::os-lib:0.9.1"
 //> using dep "io.get-coursier::dependency:0.2.2"
 //> using dep "org.virtuslab:using_directives:1.1.0"
+//> using dep "org.scala-lang.modules::scala-collection-compat:2.10.0"

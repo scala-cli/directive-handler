@@ -7,7 +7,8 @@ case class StrictDirective(
   values: Seq[Value[_]]
 ) {
   override def toString: String = {
-    val suffix = if values.isEmpty then "" else s" \"${values.mkString("\",  \"")}\""
+    val q      = "\""
+    val suffix = if (values.isEmpty) "" else s" $q${values.mkString("\",  \"")}$q"
     s"//> using $key$suffix"
   }
   def stringValuesCount: Int =
