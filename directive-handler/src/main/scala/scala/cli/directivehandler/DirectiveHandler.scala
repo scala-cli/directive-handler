@@ -23,6 +23,23 @@ trait DirectiveHandler[+T] { self =>
     scopedDirective: ScopedDirective
   ): Either[DirectiveException, ProcessedDirective[T]]
 
+  final def parse(
+    input: String,
+    path: Either[String, os.Path],
+    scopePath: ScopePath
+  ): Either[DirectiveException, Seq[ProcessedDirective[T]]] = {
+
+    val directives = ExtractedDirectives.from(input.toCharArray, path)
+      .fold(e => throw e, identity)
+      .directives
+      .map(dir => ScopedDirective(dir, path, scopePath))
+
+    directives
+      .map(handleValues)
+      .sequence
+      .left.map(CompositeDirectiveException(_))
+  }
+
   def map[U](f: T => U): DirectiveHandler[U] =
     new DirectiveHandler[U] {
       def name                   = self.name
