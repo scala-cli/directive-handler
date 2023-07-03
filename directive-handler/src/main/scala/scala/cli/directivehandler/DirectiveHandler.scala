@@ -51,6 +51,26 @@ trait DirectiveHandler[+T] { self =>
           .map(_.map(f))
     }
 
+  def ignore: DirectiveHandler[IgnoredDirective] =
+    new DirectiveHandler[IgnoredDirective] {
+      def name: String                   = self.name
+      def description: String            = "[ignored]"
+      override def descriptionMd: String = "ignored"
+      def usage: String                  = ""
+      override def usageMd: String       = ""
+      override def examples: Seq[String] = Nil
+      override def tags: Seq[String]     = Nil
+
+      def keys: Seq[String] = self.keys
+
+      private lazy val fieldNames = keys.toSet
+
+      def handleValues(
+        scopedDirective: ScopedDirective
+      ): Either[DirectiveException, ProcessedDirective[IgnoredDirective]] =
+        Right(ProcessedDirective(Some(IgnoredDirective(scopedDirective)), Nil))
+    }
+
 }
 
 object DirectiveHandler extends DirectiveHandlerMacros {
