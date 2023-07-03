@@ -144,11 +144,7 @@ object DirectiveHandlerMacros {
                 valuesByScope
                   .map {
                     case (scopeOpt, values) =>
-                      parser.value.parse(
-                        scopedDirective.directive.values,
-                        scopedDirective.cwd,
-                        scopedDirective.maybePath
-                      ).map { r =>
+                      parser.value.parse(scopedDirective).map { r =>
                         scopeOpt -> (field[K](r) :: actualDefault(default).tail)
                       }
                   }

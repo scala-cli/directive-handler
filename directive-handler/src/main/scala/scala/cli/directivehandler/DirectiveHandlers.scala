@@ -30,4 +30,15 @@ final case class DirectiveHandlers[T](handlers: Seq[DirectiveHandler[T]]) {
       .left.map(CompositeDirectiveException(_))
   }
 
+  def map[U](f: T => U): DirectiveHandlers[U] =
+    copy(handlers = handlers.map(_.map(f)))
+
+  def mapDirectives[U](f: DirectiveHandler[T] => DirectiveHandler[U]): DirectiveHandlers[U] =
+    copy(handlers = handlers.map(f))
+
+  def ++(other: DirectiveHandlers[T]): DirectiveHandlers[T] =
+    if (other.handlers.isEmpty) this
+    else if (handlers.isEmpty) other
+    else DirectiveHandlers(handlers ++ other.handlers)
+
 }

@@ -3,6 +3,14 @@ package scala.cli.directivehandler
 import com.virtuslab.using_directives.custom.model.{BooleanValue, EmptyValue, StringValue, Value}
 
 abstract class DirectiveValueParser[+T] {
+
+  def parse(scopedDirective: ScopedDirective): Either[DirectiveException, T] =
+    parse(
+      scopedDirective.directive.values,
+      scopedDirective.cwd,
+      scopedDirective.maybePath
+    )
+
   def parse(
     values: Seq[Value[_]],
     scopePath: ScopePath,
@@ -17,6 +25,8 @@ object DirectiveValueParser {
 
   private final class Mapped[T, +U](underlying: DirectiveValueParser[T], f: T => U)
       extends DirectiveValueParser[U] {
+    override def parse(scopedDirective: ScopedDirective): Either[DirectiveException, U] =
+      underlying.parse(scopedDirective).map(f)
     def parse(
       values: Seq[Value[_]],
       scopePath: ScopePath,

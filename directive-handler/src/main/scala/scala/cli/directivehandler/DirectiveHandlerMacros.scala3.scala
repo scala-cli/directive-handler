@@ -280,11 +280,7 @@ object DirectiveHandlerMacros {
                   valuesByScope
                     .map {
                       case (scopeOpt, values) =>
-                        $parser.parse(
-                          $scopedDirective.directive.values,
-                          $scopedDirective.cwd,
-                          $scopedDirective.maybePath
-                        ).map { r =>
+                        $parser.parse($scopedDirective).map { r =>
                           scopeOpt -> ${
                             genNew(List(newArgs.updated(idx, '{ r }).map(_.asTerm)))
                               .asExprOf[T]
