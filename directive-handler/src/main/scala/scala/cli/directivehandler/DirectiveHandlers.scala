@@ -47,9 +47,10 @@ final case class DirectiveHandlers[T](
     )
 
   def ++(other: DirectiveHandlers[T]): DirectiveHandlers[T] =
-    if (other.handlers.isEmpty) this
-    else if (handlers.isEmpty) other
-    else DirectiveHandlers(handlers ++ other.handlers)
+    DirectiveHandlers(
+      handlers = handlers ++ other.handlers,
+      customHandler = key => customHandler(key).orElse(other.customHandler(key))
+    )
 
   def addCustomHandler(f: String => Option[DirectiveHandler[T]]): DirectiveHandlers[T] =
     copy(
